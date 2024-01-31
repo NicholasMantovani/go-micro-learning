@@ -8,13 +8,13 @@ import (
 	"log"
 	"logger/data"
 	"net/http"
+	"os"
 	"time"
 )
 
 const (
 	webPort  = "80"
 	rpcPort  = "5001"
-	mongoUrl = "mongodb://mongo:27017"
 	grpcPort = "50001"
 )
 
@@ -49,27 +49,42 @@ func main() {
 	}
 
 	// start web server
-	go app.serve()
-}
-
-func (app *Config) serve() {
+	//go app.serve()
+	log.Println("Starting service on port", webPort)
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", webPort),
 		Handler: app.routes(),
 	}
 
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	if err != nil {
 		log.Panic(err)
 	}
+
 }
+
+//func (app *Config) serve() {
+//	srv := &http.Server{
+//		Addr:    fmt.Sprintf(":%s", webPort),
+//		Handler: app.routes(),
+//	}
+//
+//	err := srv.ListenAndServe()
+//	if err != nil {
+//		log.Panic(err)
+//	}
+//}
 
 func connectToMongo() (*mongo.Client, error) {
 	// create the connection options
+	mongoUrl := os.Getenv("MONGODB_CONN")
+	mongoUser := os.Getenv("MONGODB_USER")
+	mongoPass := os.Getenv("MONGODB_PASSWORD")
+
 	clientOptions := options.Client().ApplyURI(mongoUrl)
 	clientOptions.SetAuth(options.Credential{
-		Username: "admin",
-		Password: "password",
+		Username: mongoUser,
+		Password: mongoPass,
 	})
 
 	// connect
@@ -78,5 +93,8 @@ func connectToMongo() (*mongo.Client, error) {
 		log.Println("Error connecting:", err)
 		return nil, err
 	}
+
+	log.Println("Connected to mongo")
+
 	return c, nil
 }

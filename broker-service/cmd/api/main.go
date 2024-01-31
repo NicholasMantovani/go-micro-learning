@@ -10,14 +10,20 @@ import (
 const webPort = "80"
 
 type Config struct {
-	AuthBaseUrl string
+	AuthBaseUrl   string
+	LoggerBaseUrl string
+	MailerBaseUrl string
 }
 
 func main() {
 
 	authBaseUrl := os.Getenv("AUTH_BASE_URL")
+	loggerBaseUrl := os.Getenv("LOGGER_BASE_URL")
+	mailerBaseUrl := os.Getenv("MAILER_BASE_URL")
 	app := Config{
-		AuthBaseUrl: authBaseUrl,
+		AuthBaseUrl:   authBaseUrl,
+		LoggerBaseUrl: loggerBaseUrl,
+		MailerBaseUrl: mailerBaseUrl,
 	}
 	log.Printf("Starting broken server on port %s\n", webPort)
 

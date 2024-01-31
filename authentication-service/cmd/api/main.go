@@ -19,8 +19,9 @@ const webPort = "80"
 var count int64
 
 type Config struct {
-	DB     *sql.DB
-	Models data.Models
+	DB            *sql.DB
+	Models        data.Models
+	LoggerBaseUrl string
 }
 
 func main() {
@@ -32,10 +33,13 @@ func main() {
 		log.Panic("Can't connect to Postgres!")
 	}
 
+	loggerBaseUrl := os.Getenv("LOGGER_BASE_URL")
+
 	// set up config
 	app := Config{
-		DB:     conn,
-		Models: data.New(conn),
+		DB:            conn,
+		Models:        data.New(conn),
+		LoggerBaseUrl: loggerBaseUrl,
 	}
 
 	srv := &http.Server{
