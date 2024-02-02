@@ -5,7 +5,7 @@ services:
   broker-service:
     build:
       context: ./../broker-service
-      dockerfile: ./../broker-service/broker-service-multistep.dockerfile
+      dockerfile: ./../broker-service/broker-service.dockerfile
     restart: unless-stopped
     ports:
       - "8080:80"
@@ -14,8 +14,9 @@ services:
       replicas: 1
     environment:
       AUTH_BASE_URL: "http://authentication-service"
-      LOGGER_BASE_URL: "http://logger-service"
       MAILER_BASE_URL: "http://mailer-service"
+      LOGGER_DNS_NAME: "logger-service"
+      AMQP_CONNECTION: amqp://guest:guest@rabbitmq
 
   authentication-service:
     build:
@@ -62,7 +63,17 @@ services:
       FROM_NAME: "John Smith"
       FROM_ADDRESS: john.smith@example.com
 
-
+  listener-service:
+    build:
+      context: ./../listener-service
+      dockerfile: ./../listener-service/listener-service.dockerfile
+    restart: unless-stopped
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      AMQP_CONNECTION: amqp://guest:guest@rabbitmq
+      LOGGER_BASE_URL: "http://logger-service"
 
   postgresdb:
     image: "postgres:14.2"
@@ -101,3 +112,14 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+
+  rabbitmq:
+    image: "rabbitmq:3.9-management-alpine"
+    ports:
+      - "5672:5672"
+      - "15672:15672" # management console with username and password: guest / guest
+    deploy:
+      mode: replicated
+      replicas: 1
+    volumes:
+      - ./db-data/rabbitmq/:/var/lib/rabbitmq/

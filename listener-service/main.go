@@ -1,24 +1,13 @@
 package main
 
 import (
-	"fmt"
+	amqp "github.com/rabbitmq/amqp091-go"
+	"listener/event"
 	"log"
 	"math"
-	"net/http"
 	"os"
 	"time"
-
-	amqp "github.com/rabbitmq/amqp091-go"
 )
-
-const webPort = "80"
-
-type Config struct {
-	AuthBaseUrl   string
-	LoggerDNSName string
-	MailerBaseUrl string
-	Rabbit        *amqp.Connection
-}
 
 func main() {
 	// try to connect to rabbitmq
@@ -28,29 +17,23 @@ func main() {
 	}
 	defer rabbitConn.Close()
 
-	authBaseUrl := os.Getenv("AUTH_BASE_URL")
-	loggerDnsName := os.Getenv("LOGGER_DNS_NAME")
-	mailerBaseUrl := os.Getenv("MAILER_BASE_URL")
+	// start listening for messages
+	log.Println("Listening for and consuming RabbitMQ messages...")
 
-	app := Config{
-		AuthBaseUrl:   authBaseUrl,
-		LoggerDNSName: loggerDnsName,
-		MailerBaseUrl: mailerBaseUrl,
-		Rabbit:        rabbitConn,
-	}
-	log.Printf("Starting broken server on port %s\n", webPort)
-
-	// define http server
-	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", webPort),
-		Handler: app.routes(),
-	}
-
-	// start the serer
-	err = srv.ListenAndServe()
+	// create a consumer
+	consumer, err := event.NewConsumer(rabbitConn)
 	if err != nil {
-		log.Panic(err)
+		log.Panicln(err)
 	}
+
+	event.SetLoggerBaseUrl(os.Getenv("LOGGER_BASE_URL"))
+
+	// watch the queue and consume events from topic
+	err = consumer.List([]string{"log.INFO", "log.WARNING", "log.ERROR"})
+	if err != nil {
+		log.Println(err)
+	}
+
 }
 
 func connectToRabbitMq() (*amqp.Connection, error) {

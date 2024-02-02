@@ -15,6 +15,7 @@ type Config struct {
 const webPort = "80"
 
 func main() {
+	configureLoggin()
 	app := Config{
 		Mailer: createMail(),
 	}
@@ -46,4 +47,9 @@ func createMail() Mail {
 		FromAddress: os.Getenv("MAIL_FROM_ADDRESS"),
 	}
 	return m
+}
+
+func configureLoggin() {
+	log.SetFlags(log.Flags() | log.Lshortfile)
+
 }
