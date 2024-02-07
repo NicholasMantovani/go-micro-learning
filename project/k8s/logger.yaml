@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logger-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logger-service
+  template:
+    metadata:
+      labels:
+        app: logger-service
+    spec:
+      containers:
+        - name: logger-service
+          image: "nicholasmantovani/logger-service:1.0.1"
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          env:
+            - name: MONGODB_CONN
+              value: "mongodb://mongodb:27017"
+            - name: MONGODB_USER
+              value: "admin"
+            - name: MONGODB_PASSWORD
+              value: "password"
+          ports:
+            - containerPort: 80
+              name: rest
+            - containerPort: 5001
+              name: rcp
+            - containerPort: 50001
+              name: grpc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: logger-service
+spec:
+  selector:
+    app: logger-service
+  ports:
+    - protocol: TCP
+      name: rest-port
+      port: 80
+      targetPort: rest
+    - protocol: TCP
+      name: rpc-port
+      port: 5001
+      targetPort: rpc
+    - protocol: TCP
+      name: grpc-port
+      port: 50001
+      targetPort: grpc
