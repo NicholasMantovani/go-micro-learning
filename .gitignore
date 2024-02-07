@@ -25,3 +25,6 @@ authentication-service/authApp
 logger-service/loggerServiceApp
 mailer-service/mailerApp
 listener-service/listenerApp
+front-end/frontEndApp
+project/caddy_data
+project/caddy_config
