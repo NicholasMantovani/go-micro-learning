@@ -24,7 +24,7 @@ spec:
               cpu: "500m"
           env:
             - name: MONGODB_CONN
-              value: "mongodb://mongodb:27017"
+              value: "mongodb://mongo:27017"
             - name: MONGODB_USER
               value: "admin"
             - name: MONGODB_PASSWORD
@@ -50,12 +50,12 @@ spec:
     - protocol: TCP
       name: rest-port
       port: 80
-      targetPort: rest
+      targetPort: 80
     - protocol: TCP
       name: rpc-port
       port: 5001
-      targetPort: rpc
+      targetPort: 5001
     - protocol: TCP
       name: grpc-port
       port: 50001
-      targetPort: grpc
+      targetPort: 50001

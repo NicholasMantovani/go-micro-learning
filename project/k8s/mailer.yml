@@ -24,9 +24,9 @@ spec:
               cpu: "500m"
           env:
             - name: MAIL_DOMAIN
-              value: ""
-            - name: MAIL_HOST
               value: "localhost"
+            - name: MAIL_HOST
+              value: "mailhog"
             - name: MAIL_PORT
               value: "1025"
             - name: MAIL_ENCRYPTION
@@ -56,4 +56,4 @@ spec:
     - protocol: TCP
       name: main-port
       port: 80
-      targetPort: web
+      targetPort: 80
